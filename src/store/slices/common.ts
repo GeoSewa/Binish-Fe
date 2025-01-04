@@ -12,6 +12,7 @@ export interface CommonState {
   showPromptDialog: boolean;
   promptDialogContent: PromptDialogContentsType;
   navbarToggled: boolean;
+  activeExamTab: string | number;
 }
 
 const initialState: CommonState = {
@@ -20,6 +21,7 @@ const initialState: CommonState = {
   showPromptDialog: false,
   promptDialogContent: null,
   navbarToggled: false,
+  activeExamTab: "exam-section",
 };
 
 const setCommonState: CaseReducer<

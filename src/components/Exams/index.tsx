@@ -1,27 +1,33 @@
-import Icon from "@Components/common/Icon";
-import { FlexRow } from "@Components/common/Layouts";
+import Tab from "@Components/common/Tab";
+import { useTypedDispatch, useTypedSelector } from "@Store/hooks";
+import { getExamQuestions } from "@Services/exam";
+import { useQuery } from "@tanstack/react-query";
+import { examTabOptions } from "@Constants/exam";
+import { setCommonState } from "@Store/actions/common";
 
 export default function Exams() {
-  const handleClick = () => {
-    window.open("https://forms.gle/GKfsJFVb8ACvhPbn9", "_blank");
-  };
+  const dispatch = useTypedDispatch();
+
+  const activeExamTab = useTypedSelector((state) => state.common.activeExamTab);
+
+  const { data: examQuestions } = useQuery({
+    queryKey: ["exam-questions"],
+    queryFn: () => getExamQuestions({ set: 1 }),
+    select: (res) => res.data,
+  });
+
   return (
     <main className="notes naxatw-h-screen-nav naxatw-w-full naxatw-bg-white">
-      <div className="naxatw-container naxatw-py-14">
-        <h4 className="naxatw-mb-4">One Exam Form Currently Open :</h4>
-        <div
-          title="Click to fill the form"
-          onClick={handleClick}
-          className="naxatw-rounded-md hover:naxatw-scale-105 naxatw-duration-300 naxatw-border naxatw-cursor-pointer naxatw-bg-grey-50 naxatw-border-black naxatw-w-full naxatw-py-4 naxatw-px-3"
-        >
-          <FlexRow className="naxatw-justify-between">
-            <FlexRow className="naxatw-items-center">
-              <Icon name="quiz" className="naxatw-w-10" />
-              <p>NEC License Mock Exam</p>
-            </FlexRow>
-            <p>Kartik 04, 2081</p>
-          </FlexRow>
-        </div>
+      <div className="naxatw-container naxatw-py-4">
+        <Tab
+          orientation="row"
+          clickable
+          onTabChange={(data) => {
+            dispatch(setCommonState({ activeExamTab: data }));
+          }}
+          tabOptions={examTabOptions}
+          activeTab={activeExamTab}
+        />
       </div>
     </main>
   );
