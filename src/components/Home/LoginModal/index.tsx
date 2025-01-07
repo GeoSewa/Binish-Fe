@@ -9,7 +9,7 @@ import googleIcon from "@Assets/images/Social-Icons/google-icon.svg";
 import { useForm } from "react-hook-form";
 
 const initialState = {
-  username: "",
+  email: "",
   password: "",
 };
 
@@ -25,7 +25,7 @@ export default function LoginModal() {
     defaultValues: initialState,
   });
 
-  const onSubmit = (data: { username: string; password: string }) => {
+  const onSubmit = (data: { email: string; password: string }) => {
     console.log(data);
   };
   return (
@@ -66,7 +66,7 @@ export default function LoginModal() {
               type="text"
               placeholder="Username"
               className="naxatw-mt-1 !naxatw-rounded-lg !naxatw-border-grey-400 !naxatw-p-3"
-              {...register("username", { required: true })}
+              {...register("email", { required: true })}
             />
           </FormControl>
 

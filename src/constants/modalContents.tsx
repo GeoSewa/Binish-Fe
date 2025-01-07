@@ -1,7 +1,8 @@
 import { ReactElement } from "react";
 import LoginModal from "@Components/Home/LoginModal";
+import SignUp from "@Components/Home/SignUpModal";
 
-export type ModalContentsType = "login" | null;
+export type ModalContentsType = "login" | "sign-up" | null;
 export type PromptDialogContentsType = "delete-layer" | null;
 
 type ModalReturnType = {
@@ -17,7 +18,13 @@ export function getModalContent(content: ModalContentsType): ModalReturnType {
       return {
         title: "",
         content: <LoginModal />,
-        className: "naxatw-w-[28rem]",
+        className: "!naxatw-w-[28rem]",
+      };
+    case "sign-up":
+      return {
+        title: "Sign Up",
+        content: <SignUp />,
+        className: "!naxatw-w-[30rem]",
       };
     default:
       return {
@@ -28,7 +35,7 @@ export function getModalContent(content: ModalContentsType): ModalReturnType {
 }
 
 export function getPromptDialogContent(
-  content: PromptDialogContentsType
+  content: PromptDialogContentsType,
 ): ModalReturnType {
   switch (content) {
     case "delete-layer":

@@ -56,6 +56,7 @@ export default function Navbar() {
             <Button
               variant="default"
               className="naxatw-w-24 naxatw-border !naxatw-border-white naxatw-text-body-lg hover:naxatw-bg-white hover:naxatw-text-primary"
+              onClick={() => dispatch(toggleModal("sign-up"))}
             >
               Sign Up
             </Button>

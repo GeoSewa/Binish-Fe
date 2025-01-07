@@ -1,5 +1,6 @@
-import { api } from '.';
+import { formDataAPI } from ".";
 
-export const signInUser = (data: any) => api.post('/user/sign-in/', data);
+export const signInUser = (data: any) =>
+  formDataAPI.post("user/sign-in/", data);
 
-export const logoutUser = () => api.post('/user/logout/');
+export const singUpUser = (data: any) => formDataAPI.post("user/signup/", data);
