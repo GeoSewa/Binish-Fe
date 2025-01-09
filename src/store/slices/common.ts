@@ -21,7 +21,7 @@ const initialState: CommonState = {
   showPromptDialog: false,
   promptDialogContent: null,
   navbarToggled: false,
-  activeExamTab: "exam-section",
+  activeExamTab: "form-section",
 };
 
 const setCommonState: CaseReducer<
@@ -43,7 +43,7 @@ const toggleModal: CaseReducer<
 
 const setToggleNavbar: CaseReducer<CommonState, PayloadAction<boolean>> = (
   state,
-  action
+  action,
 ) => ({
   ...state,
   navbarToggled: action.payload,
