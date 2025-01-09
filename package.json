@@ -80,5 +80,8 @@
       "eslint --fix",
       "prettier --cache --write"
     ]
+  },
+  "engines": {
+    "node": ">=18.18.0"
   }
 }
