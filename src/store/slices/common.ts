@@ -43,7 +43,7 @@ const toggleModal: CaseReducer<
 
 const setToggleNavbar: CaseReducer<CommonState, PayloadAction<boolean>> = (
   state,
-  action,
+  action
 ) => ({
   ...state,
   navbarToggled: action.payload,

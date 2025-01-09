@@ -8,7 +8,7 @@ export default function FormSection() {
         onClick={() =>
           window.open(
             "https://docs.google.com/forms/d/e/1FAIpQLSdXQT4kRARLykvhLpgBpcbl-th53jy3FhIxNuOiXyMrzzQJ0g/viewform?usp=send_form",
-            "_blank",
+            "_blank"
           )
         }
       >
