@@ -2,7 +2,7 @@
 import { Route, Routes } from 'react-router-dom';
 import { ReactNode, Suspense } from 'react';
 import Fallback from '@Components/common/Fallback';
-import useAuth from '@Hooks/useAuth';
+import useAuthSession from '@Hooks/useAuthSession';
 import ProtectedRoute from './ProtectedRoute';
 import { IRoute } from './types';
 
@@ -14,8 +14,9 @@ export default function generateRoutes({
   routes,
   fallback = <Fallback />,
 }: IGenerateRouteParams) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuthSession();
 
+  if (loading) return fallback;
   return (
     <Suspense fallback={fallback}>
       <Routes>
@@ -24,7 +25,7 @@ export default function generateRoutes({
             return (
               <Route
                 key={route.name}
-                element={<ProtectedRoute isAuthenticated={isAuthenticated()} />}
+                element={<ProtectedRoute isAuthenticated={isAuthenticated} />}
               >
                 {route?.children ? (
                   <Route key={route.name} path={route.path}>

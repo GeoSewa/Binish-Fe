@@ -12,7 +12,13 @@ export interface CommonState {
   showPromptDialog: boolean;
   promptDialogContent: PromptDialogContentsType;
   navbarToggled: boolean;
-  activeExamTab: string | number;
+  activeExamTab: string;
+  examView: 'main' | 'email-verification' | 'mock-tests' | 'mcq-test';
+  userEmail: string | null;
+  selectedMockTest: number | null;
+  attemptId: string | null; // <-- Added for storing attempt id
+  isAuthenticated: boolean;
+  username: string | null;
 }
 
 const initialState: CommonState = {
@@ -22,6 +28,12 @@ const initialState: CommonState = {
   promptDialogContent: null,
   navbarToggled: false,
   activeExamTab: "form-section",
+  examView: 'main',
+  userEmail: null,
+  selectedMockTest: null,
+  attemptId: null, // <-- Added for storing attempt id
+  isAuthenticated: false,
+  username: null,
 };
 
 const setCommonState: CaseReducer<
@@ -74,6 +86,15 @@ const setPromptDialogContent: CaseReducer<
   promptDialogContent: action.payload || null,
 });
 
+const setLoginState: CaseReducer<
+  CommonState,
+  PayloadAction<{ isAuthenticated: boolean; username: string | null }>
+> = (state, action) => ({
+  ...state,
+  isAuthenticated: action.payload.isAuthenticated,
+  username: action.payload.username,
+});
+
 const commonSlice = createSlice({
   name: "common",
   initialState,
@@ -84,6 +105,7 @@ const commonSlice = createSlice({
     setToggleNavbar,
     togglePromptDialog,
     setPromptDialogContent,
+    setLoginState,
   },
 });
 

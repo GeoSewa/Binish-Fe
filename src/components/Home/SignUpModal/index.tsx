@@ -5,16 +5,20 @@ import { Flex } from "@Components/common/Layouts";
 import { Button } from "@Components/RadixComponents/Button";
 import { useForm } from "react-hook-form";
 import ErrorMessage from "@Components/common/FormUI/ErrorMessage";
-import prepareFormData from "@Utils/prepareFormData";
 import { AxiosResponse } from "axios";
 import { useMutation } from "@tanstack/react-query";
 import { singUpUser } from "@Services/common";
+import { useNavigate } from "react-router-dom";
+import { useTypedDispatch } from "@Store/hooks";
+import { toggleModal, setModalContent } from "@Store/actions/common";
 
 const initialState = {
   first_name: "",
   last_name: "",
+  username: "",
   email: "",
   password: "",
+  password_confirm: "",
   phone: "",
   gender: "male",
 };
@@ -27,6 +31,9 @@ function validateEmail(email: string) {
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const navigate = useNavigate();
+  const dispatch = useTypedDispatch();
 
   const validEmail = validateEmail(email);
   // toggle the password visibility
@@ -34,22 +41,53 @@ export default function SignUp() {
     return setShowPassword((prev) => !prev);
   };
 
-  const { mutate, isLoading } = useMutation<AxiosResponse<any, any>, unknown>({
+  const closeModal = () => {
+    dispatch(toggleModal());
+    setTimeout(() => {
+      dispatch(setModalContent(null));
+    }, 150);
+  };
+
+  const { mutate, isLoading } = useMutation<AxiosResponse<any, any>, any>({
     mutationFn: singUpUser,
-    onSuccess: (res: any) => console.log(res),
+    onSuccess: (res: any, variables: any) => {
+      localStorage.setItem("signup_email", variables.email || variables.get("email"));
+      navigate("/verify-email");
+      closeModal();
+    },
+    onError: (err: any) => {
+      const errorData = err?.response?.data;
+      const errorMsg =
+        errorData?.detail ||
+        (typeof errorData === "string" ? errorData : "") ||
+        JSON.stringify(errorData) ||
+        "Signup failed.";
+
+      if (
+        errorMsg.includes("already exists") ||
+        errorMsg.toLowerCase().includes("already registered")
+      ) {
+        localStorage.setItem("signup_email", email);
+        navigate("/verify-email");
+        closeModal();
+        return;
+      }
+
+      setError(errorMsg);
+    },
   });
   const { register, handleSubmit, formState } = useForm({
     defaultValues: initialState,
   });
 
   const onSubmit = (data: any) => {
+    setError("");
     const modifiedPayload = {
       ...data,
-      confirm_password: data.password,
+      password_confirm: data.password_confirm,
       is_delete: false,
     };
-    const finalPaylisErroroad = prepareFormData(modifiedPayload);
-    mutate(finalPaylisErroroad as any);
+    mutate(modifiedPayload);
   };
 
   return (
@@ -62,6 +100,7 @@ export default function SignUp() {
           onSubmit={handleSubmit(onSubmit)}
           className="naxatw-flex naxatw-w-full naxatw-flex-col naxatw-gap-4"
         >
+          {error && <ErrorMessage message={error} />}
           <FormControl>
             <Label htmlFor="first_name" required>
               First Name
@@ -122,6 +161,20 @@ export default function SignUp() {
             <ErrorMessage message={formState?.errors?.email?.message || ""} />
           </FormControl>
 
+          <FormControl>
+            <Label htmlFor="username" required>
+              Username
+            </Label>
+            <Input
+              id="username"
+              type="text"
+              placeholder="Username"
+              className="naxatw-mt-1 !naxatw-rounded-lg !naxatw-border-grey-400 !naxatw-p-3"
+              {...register("username", { required: "Username is required" })}
+            />
+            <ErrorMessage message={formState?.errors?.username?.message || ""} />
+          </FormControl>
+
           <FormControl className="naxatw-relative">
             <Label htmlFor="password" required>
               Password
@@ -145,20 +198,22 @@ export default function SignUp() {
             />
           </FormControl>
           <FormControl className="naxatw-relative">
-            <Label htmlFor="password" required>
+            <Label htmlFor="password_confirm" required>
               Confirm Password
             </Label>
             <Input
-              id="password"
+              id="password_confirm"
               placeholder="*******"
               className="naxatw-mt-1 !naxatw-rounded-lg !naxatw-border-grey-400 !naxatw-p-3"
               type={showPassword ? "text" : "password"}
+              {...register("password_confirm", { required: "Confirm Password is required" })}
             />
             <Icon
               name={showPassword ? "visibility" : "visibility_off"}
               className="naxatw-absolute naxatw-right-2 naxatw-top-[55%] naxatw-cursor-pointer naxatw-text-sm naxatw-text-grey-600"
               onClick={() => handleShow()}
             />
+            <ErrorMessage message={formState?.errors?.password_confirm?.message || ""} />
           </FormControl>
 
           <Button

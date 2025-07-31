@@ -34,3 +34,20 @@ export const authenticated = (apiInstance: AxiosInstance) => {
   }
   return apiInstance;
 };
+
+// Add a request interceptor to always use the latest access token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Token ${token}`;
+    } else {
+      if (config.headers && config.headers.Authorization) {
+        delete config.headers.Authorization;
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);

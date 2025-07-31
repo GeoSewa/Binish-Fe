@@ -7,4 +7,5 @@ export const {
   togglePromptDialog,
   setToggleNavbar,
   setPromptDialogContent,
+  setLoginState,
 } = commonSlice.actions;
