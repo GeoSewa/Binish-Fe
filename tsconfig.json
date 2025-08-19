@@ -43,7 +43,7 @@
       "@UserModule/*": ["modules/user-auth-module/src/*"]
     }
   },
-  "include": [".eslintrc.cjs", "src", "src/**/*.ts"],
+  "include": [".eslintrc.cjs", "src", "src/**/*.ts", "src/**/*.d.ts"],
   "exclude": ["node_modules", "dist"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

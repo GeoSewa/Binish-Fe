@@ -32,7 +32,7 @@ export default function Exams() {
           orientation="row"
           clickable
           onTabChange={(data) => {
-            dispatch(setCommonState({ activeExamTab: data }));
+            dispatch(setCommonState({ activeExamTab: data as string }));
           }}
           tabOptions={examTabOptions}
           activeTab={activeExamTab}
