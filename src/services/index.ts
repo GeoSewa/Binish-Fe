@@ -1,12 +1,11 @@
 /* eslint-disable no-param-reassign */
 import axios, { AxiosInstance } from "axios";
 
-const { BASE_URL } = process.env;
-
-export const baseURL = BASE_URL;
+// Use the GeoSewa API base URL
+export const baseURL = "https://sujanadh.pythonanywhere.com/api";
 
 export const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: baseURL,
   timeout: 5 * 60 * 1000,
   headers: {
     accept: "application/json",
@@ -15,7 +14,7 @@ export const api = axios.create({
 });
 
 export const formDataAPI = axios.create({
-  baseURL: BASE_URL,
+  baseURL: baseURL,
   timeout: 5 * 60 * 1000,
   headers: {
     accept: "application/json",
@@ -27,9 +26,9 @@ export const authenticated = (apiInstance: AxiosInstance) => {
   const token = localStorage.getItem("token");
   if (!token) return apiInstance;
   if (process.env.NODE_ENV === "development") {
-    apiInstance.defaults.headers.common.Authorization = `Token ${token}`;
+    apiInstance.defaults.headers.common.Authorization = `Bearer ${token}`;
   } else {
-    apiInstance.defaults.headers.common.Authorization = `Token ${token}`;
+    apiInstance.defaults.headers.common.Authorization = `Bearer ${token}`;
     apiInstance.defaults.withCredentials = false;
   }
   return apiInstance;
@@ -41,7 +40,7 @@ api.interceptors.request.use(
     const token = localStorage.getItem("token");
     if (token) {
       config.headers = config.headers || {};
-      config.headers.Authorization = `Token ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     } else {
       if (config.headers && config.headers.Authorization) {
         delete config.headers.Authorization;
