@@ -48,7 +48,7 @@ export default function SignUp() {
     }, 150);
   };
 
-  const { mutate, isLoading } = useMutation<AxiosResponse<any, any>, any>({
+  const { mutate, isPending: isLoading } = useMutation<AxiosResponse<any, any>, any>({
     mutationFn: singUpUser,
     onSuccess: (res: any, variables: any) => {
       localStorage.setItem("signup_email", variables.email || variables.get("email"));
