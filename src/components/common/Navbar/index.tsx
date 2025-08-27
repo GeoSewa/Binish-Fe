@@ -2,11 +2,11 @@ import { useTypedDispatch } from "@Store/hooks";
 import { NavLink, useNavigate } from "react-router-dom";
 import { navigationLinks } from "@Constants/index";
 import { Button } from "@Components/RadixComponents/Button";
-import { toggleModal } from "@Store/actions/common";
+import { toggleModal, setLoginState } from "@Store/actions/common";
 import Icon from "../Icon";
 import { FlexRow } from "../Layouts";
 import ToggledNavbar from "./ToggledNavbar";
-import { useRef } from "react";
+import { useRef, useCallback, useState, useEffect } from "react";
 import Person from '../../../assets/images/Social-Icons/person.svg';
 import useAuthSession from "@Hooks/useAuthSession";
 
@@ -15,14 +15,42 @@ export default function Navbar() {
   const navigate = useNavigate();
   const mobileViewNav = useRef<HTMLElement | null>(null);
   const { isAuthenticated } = useAuthSession();
-  const username = localStorage.getItem("username");
+  const [localAuthState, setLocalAuthState] = useState({
+    isAuthenticated: !!localStorage.getItem("token"),
+    username: localStorage.getItem("username")
+  });
 
-  const handleLogout = () => {
+  // Update local state when hook state changes
+  useEffect(() => {
+    setLocalAuthState({
+      isAuthenticated,
+      username: localStorage.getItem("username")
+    });
+  }, [isAuthenticated]);
+
+  // Use local state for immediate UI updates, fallback to hook state
+  const currentAuthState = localAuthState.isAuthenticated || isAuthenticated ? 
+    { isAuthenticated: localAuthState.isAuthenticated || isAuthenticated, username: localAuthState.username } : 
+    { isAuthenticated: false, username: null };
+
+  const handleLogout = useCallback(() => {
+    // Immediately update local state for instant UI update
+    setLocalAuthState({ isAuthenticated: false, username: null });
+    
+    // Clear Redux authentication state
+    dispatch(setLoginState({ isAuthenticated: false, username: null }));
+    
+    // Clear localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("username");
+    
+    // Dispatch authChanged event to notify useAuthSession hook
+    window.dispatchEvent(new Event("authChanged"));
+    
+    // Navigate to home
     navigate("/");
-  };
+  }, [dispatch, navigate]);
 
   return (
     <nav className="naxatw-bg-primary naxatw-sticky naxatw-top-0 naxatw-z-10">
@@ -57,10 +85,10 @@ export default function Navbar() {
             className="naxatw-hidden md:naxatw-flex naxatw-items-center"
             gap={2}
           >
-            {isAuthenticated ? (
+            {currentAuthState.isAuthenticated ? (
               <FlexRow className="naxatw-items-center naxatw-gap-2">
                 <img src={Person} alt="user" width={32} height={32} style={{ borderRadius: "50%" }} />
-                <span className="naxatw-text-white naxatw-font-medium">{username}</span>
+                <span className="naxatw-text-white naxatw-font-medium">{currentAuthState.username}</span>
                 <button
                   onClick={handleLogout}
                   className="naxatw-ml-2 naxatw-bg-red-500 naxatw-text-white naxatw-px-3 naxatw-py-1 naxatw-rounded hover:naxatw-bg-red-600"
