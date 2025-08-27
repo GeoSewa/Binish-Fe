@@ -4,8 +4,9 @@ import PscPrep from "@Assets/images/Psc-prepration.svg";
 import ItServices from "@Assets/images/It-services.svg";
 import ArunBhumi from "@Assets/images/Students/arun-bhumi.jpg";
 import BishalGyawali from "@Assets/images/Students/bishal-gyawali.jpg";
-import KaranChd from "@Assets/images/Students/karan-chaudhary.jpg";
 import SamratAch from "@Assets/images/Students/samrat-acharya.jpg";
+import RabinaPoudyal from "@Assets/images/Students/rabina-poudyal.jpg";
+import SangeetaBc from "@Assets/images/Students/sangeeta-bc.jpg";
 
 export const servicesContent = [
   {
@@ -79,12 +80,20 @@ export const faqsDataList = [
 
 export const studentsQuote = [
   {
-    id: 3,
-    student: "Karan Chaudhary",
-    organization: "IOE, WRC",
-    image: KaranChd,
+    id: 5,
+    student: "Rabina Poudyal",
+    organization: "KU",
+    image: RabinaPoudyal,
     quote:
-      "Very helpful and worth it. I recommend everyone to participate in the moct test conducted by Geo Sewa. It helps a lot.",
+      "GeoSewa has been an invaluable resource during my engineering license preparation. The mock tests provided are highly similar to the actual licensing exam, which helped me gain the confidence and knowledge needed to excel.I truly appreciate how GeoSewa has contributed to my preparation and would highly recommend it to anyone preparing for their engineering exams.",
+  },
+  {
+    id: 6,
+    student: "Sangeeta BC",
+    organization: "IOE, WRC",
+    image: SangeetaBc,
+    quote:
+      "-	During my NEC exam preparation, Geosewa's mock test proved to be incredibly helpful. The questions were closely aligned with the actual exam, boosting my confidence. Thanks to their well-designed practice sets, I felt confident throughout the exam session. I highly recommend Geosewa's mock test to anyone preparing for the NEC exam.",
   },
   {
     id: 1,
@@ -94,7 +103,7 @@ export const studentsQuote = [
     quote:
       "I took five Geosewa mock exams, which closely mirrored the NEC format and provided excellent practice. Many questions in the actual license exam were similar, significantly boosting my confidence and success. I highly recommend Geosewa's tests for anyone preparing for the exam.",
   },
-  {
+  {    
     id: 2,
     student: "Bishal Gyawali",
     organization: "IOE, WRC",

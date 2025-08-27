@@ -73,6 +73,8 @@ export default function MockTests() {
         errorMessage = "Authentication required. Please log in again to access this Mock Set.";
       } else if (err.response?.status === 402) {
         errorMessage = "Payment required. Please complete the payment to access this Mock Set.";
+      } else if (err.response?.status === 400) {
+        errorMessage = "You have tried all 3 attempts. Please contact the Administrator.";
       } else if (err.response?.data?.message) {
         errorMessage = err.response.data.message;
       }
