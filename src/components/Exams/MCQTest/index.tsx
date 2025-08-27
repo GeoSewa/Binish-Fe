@@ -95,7 +95,7 @@ export default function MCQTest() {
         if (data.questions && Array.isArray(data.questions)) {
           setQuestions(data.questions);
         } else {
-          throw new Error('No questions found in exam attempt');
+          throw new Error('Exam content not available. Please contact support or try again later.');
         }
         
         // Load any previously saved answers from localStorage
@@ -105,7 +105,7 @@ export default function MCQTest() {
             const savedAnswers = JSON.parse(saved);
             setSelectedAnswers(savedAnswers);
           } catch {
-            console.warn('Failed to parse saved answers from localStorage');
+            console.warn('Unable to load previously saved answers from local storage. Starting with fresh answers.');
           }
         }
         
@@ -119,7 +119,21 @@ export default function MCQTest() {
         
       } catch (err: any) {
         console.error('Error fetching exam attempt:', err);
-        setError(err.response?.data?.message || 'Error loading questions. Please try again.');
+        
+        // Handle different error scenarios with professional messages
+        let errorMessage = 'Error loading questions. Please try again.';
+        
+        if (err.response?.status === 404) {
+          errorMessage = "Exam attempt not found. Please return to the exam section and try again.";
+        } else if (err.response?.status === 403) {
+          errorMessage = "Access denied. You don't have permission to access this exam attempt.";
+        } else if (err.response?.status === 401) {
+          errorMessage = "Authentication required. Please log in again to continue.";
+        } else if (err.response?.data?.message) {
+          errorMessage = err.response.data.message;
+        }
+        
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -144,7 +158,7 @@ export default function MCQTest() {
 
   const handleSubmit = async () => {
     if (!attemptId) {
-      setError('No attempt ID found');
+      setError('Invalid exam session. Please return to the exam section and try again.');
       return;
     }
 
@@ -174,7 +188,7 @@ export default function MCQTest() {
             selected_choices: [choiceId]
           });
         } catch (err) {
-          console.warn(`Failed to save answer for question ${questionId}:`, err);
+          console.warn(`Unable to save answer for question ${questionId}. Your answer will be saved locally.`, err);
         }
       }
       console.log('All answers saved successfully');
@@ -240,10 +254,15 @@ export default function MCQTest() {
 
   if (loading) {
     return (
-      <div className="naxatw-flex naxatw-items-center naxatw-justify-center naxatw-h-64">
-        <div className="naxatw-text-center">
-          <div className="naxatw-text-lg naxatw-mb-2">Loading questions...</div>
-          <div className="naxatw-text-gray-500">Please wait while we prepare your exam</div>
+      <div className="naxatw-p-8 naxatw-max-w-2xl naxatw-mx-auto">
+        <div className="naxatw-bg-blue-50 naxatw-border naxatw-border-blue-200 naxatw-rounded-lg naxatw-p-6 naxatw-text-center">
+          <div className="naxatw-w-16 naxatw-h-16 naxatw-bg-blue-100 naxatw-rounded-full naxatw-flex naxatw-items-center naxatw-justify-center naxatw-mx-auto naxatw-mb-4">
+            <svg className="naxatw-w-8 naxatw-h-8 naxatw-text-blue-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </div>
+          <h3 className="naxatw-text-lg naxatw-font-semibold naxatw-text-blue-800 naxatw-mb-2">Loading Your Exam</h3>
+          <p className="naxatw-text-blue-700 naxatw-leading-relaxed">Please wait while we prepare your exam questions and settings.</p>
         </div>
       </div>
     );
@@ -251,12 +270,21 @@ export default function MCQTest() {
 
   if (error) {
     return (
-      <div className="naxatw-p-8">
-        <div className="naxatw-text-center">
-          <div className="naxatw-text-red-500 naxatw-mb-4">{error}</div>
+      <div className="naxatw-p-8 naxatw-max-w-2xl naxatw-mx-auto">
+        <div className="naxatw-bg-red-50 naxatw-border naxatw-border-red-200 naxatw-rounded-lg naxatw-p-6 naxatw-text-center">
+          <div className="naxatw-mb-4">
+            <div className="naxatw-w-16 naxatw-h-16 naxatw-bg-red-100 naxatw-rounded-full naxatw-flex naxatw-items-center naxatw-justify-center naxatw-mx-auto naxatw-mb-4">
+              <svg className="naxatw-w-8 naxatw-h-8 naxatw-text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h3 className="naxatw-text-lg naxatw-font-semibold naxatw-text-red-800 naxatw-mb-2">Error Occurred</h3>
+            <p className="naxatw-text-red-700 naxatw-leading-relaxed">{error}</p>
+          </div>
+          
           <Button
             onClick={handleBackToMocks}
-            className="naxatw-bg-primary naxatw-text-white naxatw-py-2 naxatw-px-4 naxatw-rounded-md"
+            className="naxatw-bg-primary naxatw-text-white naxatw-py-2 naxatw-px-4 naxatw-rounded-md hover:naxatw-bg-primary/90 naxatw-transition-colors"
           >
             Back to Mock Tests
           </Button>
@@ -267,12 +295,21 @@ export default function MCQTest() {
 
   if (!Array.isArray(questions) || questions.length === 0) {
     return (
-      <div className="naxatw-p-8">
-        <div className="naxatw-text-center">
-          <div className="naxatw-text-gray-500 naxatw-mb-4">No questions available for this exam.</div>
+      <div className="naxatw-p-8 naxatw-max-w-2xl naxatw-mx-auto">
+        <div className="naxatw-bg-yellow-50 naxatw-border naxatw-border-yellow-200 naxatw-rounded-lg naxatw-p-6 naxatw-text-center">
+          <div className="naxatw-mb-4">
+            <div className="naxatw-w-16 naxatw-h-16 naxatw-bg-yellow-100 naxatw-rounded-full naxatw-flex naxatw-items-center naxatw-justify-center naxatw-mx-auto naxatw-mb-4">
+              <svg className="naxatw-w-8 naxatw-h-8 naxatw-text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h3 className="naxatw-text-lg naxatw-font-semibold naxatw-text-yellow-800 naxatw-mb-2">No Questions Available</h3>
+            <p className="naxatw-text-yellow-700 naxatw-leading-relaxed">No questions are currently available for this exam. Please try again later or contact support if the issue persists.</p>
+          </div>
+          
           <Button
             onClick={handleBackToMocks}
-            className="naxatw-bg-primary naxatw-text-white naxatw-py-2 naxatw-px-4 naxatw-rounded-md"
+            className="naxatw-bg-primary naxatw-text-white naxatw-py-2 naxatw-px-4 naxatw-rounded-md hover:naxatw-bg-primary/90 naxatw-transition-colors"
           >
             Back to Mock Tests
           </Button>

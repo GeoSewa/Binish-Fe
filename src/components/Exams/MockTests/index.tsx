@@ -28,7 +28,7 @@ export default function MockTests() {
         const response = await getExamSets();
         setMockTests(response.data);
       } catch (err) {
-        setError("Error loading mock tests");
+        setError("Unable to load mock tests at this time. Please check your connection and try again.");
         console.error("Error fetching mock tests:", err);
       } finally {
         setLoading(false);
@@ -47,7 +47,7 @@ export default function MockTests() {
       const attemptId = response.data.attempt_id || response.data.id || response.data.attempt;
       
       if (!attemptId) {
-        throw new Error('No attempt id returned from server');
+        throw new Error('Unable to create exam session. Please try again or contact support.');
       }
       
       dispatch(setCommonState({
@@ -57,23 +57,96 @@ export default function MockTests() {
       }));
     } catch (err: any) {
       console.error("Error starting attempt:", err);
-      setError(err.response?.data?.message || 'Failed to start attempt. Please try again.');
+      
+      // Handle different error scenarios with professional messages
+      let errorMessage = 'Failed to start attempt. Please try again.';
+      
+      if (err.response?.status === 404) {
+        errorMessage = "You don't have access to the selected Mock Set. Kindly complete the payment or contact the Administrator.";
+      } else if (err.response?.status === 403) {
+        errorMessage = "Access denied. You don't have permission to access this Mock Set. Please contact the Administrator (+977-9763252325) for assistance.";
+      } else if (err.response?.status === 401) {
+        errorMessage = "Authentication required. Please log in again to access this Mock Set.";
+      } else if (err.response?.status === 402) {
+        errorMessage = "Payment required. Please complete the payment to access this Mock Set.";
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setStartingAttempt(false);
     }
   };
 
-  if (loading) return <div className="naxatw-p-8">Loading mock tests...</div>;
-  if (startingAttempt) return <div className="naxatw-p-8">Starting attempt...</div>;
+  if (loading) return (
+    <div className="naxatw-p-8 naxatw-max-w-2xl naxatw-mx-auto">
+      <div className="naxatw-bg-blue-50 naxatw-border naxatw-border-blue-200 naxatw-rounded-lg naxatw-p-6 naxatw-text-center">
+        <div className="naxatw-w-16 naxatw-h-16 naxatw-bg-blue-100 naxatw-rounded-full naxatw-flex naxatw-items-center naxatw-justify-center naxatw-mx-auto naxatw-mb-4">
+          <svg className="naxatw-w-8 naxatw-h-8 naxatw-text-blue-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </div>
+        <h3 className="naxatw-text-lg naxatw-font-semibold naxatw-text-blue-800 naxatw-mb-2">Loading Mock Tests</h3>
+        <p className="naxatw-text-blue-700 naxatw-leading-relaxed">Please wait while we fetch the available mock tests for you.</p>
+      </div>
+    </div>
+  );
+  
+  if (startingAttempt) return (
+    <div className="naxatw-p-8 naxatw-max-w-2xl naxatw-mx-auto">
+      <div className="naxatw-bg-green-50 naxatw-border naxatw-border-green-200 naxatw-rounded-lg naxatw-p-6 naxatw-text-center">
+        <div className="naxatw-w-16 naxatw-h-16 naxatw-bg-green-100 naxatw-rounded-full naxatw-flex naxatw-items-center naxatw-justify-center naxatw-mx-auto naxatw-mb-4">
+          <svg className="naxatw-w-8 naxatw-h-8 naxatw-text-green-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </div>
+        <h3 className="naxatw-text-lg naxatw-font-semibold naxatw-text-green-800 naxatw-mb-2">Starting Your Exam</h3>
+        <p className="naxatw-text-green-700 naxatw-leading-relaxed">Please wait while we prepare your exam session. This may take a few moments.</p>
+      </div>
+    </div>
+  );
   if (error) return (
-    <div className="naxatw-p-8">
-      <div className="naxatw-text-red-500 naxatw-mb-4">{error}</div>
-      <button 
-        onClick={() => window.location.reload()} 
-        className="naxatw-bg-primary naxatw-text-white naxatw-py-2 naxatw-px-4 naxatw-rounded-md"
-      >
-        Retry
-      </button>
+    <div className="naxatw-p-8 naxatw-max-w-2xl naxatw-mx-auto">
+      <div className="naxatw-bg-red-50 naxatw-border naxatw-border-red-200 naxatw-rounded-lg naxatw-p-6 naxatw-text-center">
+        <div className="naxatw-mb-4">
+          <div className="naxatw-w-16 naxatw-h-16 naxatw-bg-red-100 naxatw-rounded-full naxatw-flex naxatw-items-center naxatw-justify-center naxatw-mx-auto naxatw-mb-4">
+            <svg className="naxatw-w-8 naxatw-h-8 naxatw-text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 className="naxatw-text-lg naxatw-font-semibold naxatw-text-red-800 naxatw-mb-2">Access Denied</h3>
+          <p className="naxatw-text-red-700 naxatw-leading-relaxed">{error}</p>
+        </div>
+        
+        <div className="naxatw-flex naxatw-flex-col naxatw-sm:flex-row naxatw-gap-3 naxatw-justify-center">
+          <button 
+            onClick={() => window.location.reload()} 
+            className="naxatw-bg-primary naxatw-text-white naxatw-py-2 naxatw-px-4 naxatw-rounded-md hover:naxatw-bg-primary/90 naxatw-transition-colors"
+          >
+            Retry
+          </button>
+          <button 
+            onClick={() => dispatch(setCommonState({ examView: 'main' }))}
+            className="naxatw-bg-gray-100 naxatw-text-gray-700 naxatw-py-2 naxatw-px-4 naxatw-rounded-md hover:naxatw-bg-gray-200 naxatw-transition-colors"
+          >
+            Back to Exam Section
+          </button>
+        </div>
+        
+        {error.includes("contact the Administrator") && (
+          <div className="naxatw-mt-4 naxatw-pt-4 naxatw-border-t naxatw-border-red-200">
+            <p className="naxatw-text-sm naxatw-text-red-600 naxatw-mb-2">Need immediate assistance?</p>
+            <div className="naxatw-flex naxatw-items-center naxatw-justify-center naxatw-gap-2">
+              <svg className="naxatw-w-4 naxatw-h-4 naxatw-text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.554.89l1.28 7.19a1 1 0 01-.554 1.11l-1.28 7.19a1 1 0 01-1.11.554H5a2 2 0 01-2-2V5z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12V4a2 2 0 00-2-2h-1a2 2 0 00-2 2v8m0 0v4a2 2 0 002 2h1a2 2 0 002-2v-8m0 0V4" />
+              </svg>
+              <span className="naxatw-text-sm naxatw-text-red-600">Contact: +977-9763252325</span>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 
@@ -124,7 +197,15 @@ export default function MockTests() {
 
         {mockTests.length === 0 && !loading && (
           <div className="naxatw-text-center naxatw-text-gray-500 naxatw-mt-8">
-            No mock tests available at the moment.
+            <div className="naxatw-bg-gray-50 naxatw-border naxatw-border-gray-200 naxatw-rounded-lg naxatw-p-6">
+              <div className="naxatw-w-16 naxatw-h-16 naxatw-bg-gray-100 naxatw-rounded-full naxatw-flex naxatw-items-center naxatw-justify-center naxatw-mx-auto naxatw-mb-4">
+                <svg className="naxatw-w-8 naxatw-h-8 naxatw-text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 className="naxatw-text-lg naxatw-font-semibold naxatw-text-gray-800 naxatw-mb-2">No Mock Tests Available</h3>
+              <p className="naxatw-text-gray-600 naxatw-leading-relaxed">Currently, there are no mock tests available. Please check back later or contact support for more information.</p>
+            </div>
           </div>
         )}
       </div>
