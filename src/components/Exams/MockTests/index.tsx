@@ -20,23 +20,27 @@ export default function MockTests() {
   const [error, setError] = useState<string | null>(null);
   const [startingAttempt, setStartingAttempt] = useState(false);
 
-  useEffect(() => {
-    const fetchMockTests = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await getExamSets();
-        setMockTests(response.data);
-      } catch (err) {
-        setError("Unable to load mock tests at this time. Please check your connection and try again.");
-        console.error("Error fetching mock tests:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchMockTests = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await getExamSets();
+      setMockTests(response.data);
+    } catch (err) {
+      setError("Unable to load mock tests at this time. Please check your connection and try again.");
+      console.error("Error fetching mock tests:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchMockTests();
   }, []);
+
+  const handleRetry = () => {
+    fetchMockTests();
+  };
 
   const handleMockClick = async (mockId: number) => {
     setStartingAttempt(true);
@@ -121,7 +125,7 @@ export default function MockTests() {
         
         <div className="naxatw-flex naxatw-flex-col naxatw-sm:flex-row naxatw-gap-3 naxatw-justify-center">
           <button 
-            onClick={() => window.location.reload()} 
+            onClick={handleRetry}
             className="naxatw-bg-primary naxatw-text-white naxatw-py-2 naxatw-px-4 naxatw-rounded-md hover:naxatw-bg-primary/90 naxatw-transition-colors"
           >
             Retry
