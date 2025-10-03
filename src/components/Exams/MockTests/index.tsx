@@ -194,7 +194,7 @@ export default function MockTests() {
                   {test.difficulty}
                 </span>
                 <span className="naxatw-text-lg naxatw-font-bold naxatw-text-primary">
-                  ${test.price}
+                  Rs. {test.price}
                 </span>
               </div>
               
