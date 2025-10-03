@@ -43,6 +43,7 @@ interface ExamResult {
 export default function MCQTest() {
   const selectedMockTest = useTypedSelector((state) => state.common.selectedMockTest);
   const attemptId = useTypedSelector((state) => state.common.attemptId);
+  const examDurationMinutes = useTypedSelector((state) => state.common.examDurationMinutes);
   const dispatch = useTypedDispatch();
   const questionsContainerRef = useRef<HTMLDivElement>(null);
   
@@ -54,6 +55,8 @@ export default function MCQTest() {
   const [showResults, setShowResults] = useState(false);
   const [examResult, setExamResult] = useState<ExamResult | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [remainingMs, setRemainingMs] = useState<number | null>(null);
+  const [timerExpired, setTimerExpired] = useState(false);
   
   const questionsPerPage = 10;
   const totalPages = Math.ceil(questions.length / questionsPerPage);
@@ -97,6 +100,31 @@ export default function MCQTest() {
         } else {
           throw new Error('Exam content not available. Please contact support or try again later.');
         }
+
+        // Setup countdown timer using end_time or duration
+        try {
+          const storageKey = `mockTestEndTime_${attemptId}`;
+          let endTime = 0;
+          if (data.end_time) {
+            // server provides ISO end time
+            endTime = new Date(data.end_time).getTime();
+          } else {
+            const stored = localStorage.getItem(storageKey);
+            if (stored) {
+              endTime = parseInt(stored, 10);
+            } else {
+              const now = Date.now();
+              const duration = (data.duration_minutes || examDurationMinutes || 0) * 60 * 1000;
+              if (duration > 0) {
+                endTime = now + duration;
+                localStorage.setItem(storageKey, String(endTime));
+              }
+            }
+          }
+          if (endTime > 0) {
+            setRemainingMs(Math.max(0, endTime - Date.now()));
+          }
+        } catch {}
         
         // Load any previously saved answers from localStorage
         const saved = localStorage.getItem(getAnswersStorageKey(attemptId));
@@ -141,6 +169,41 @@ export default function MCQTest() {
 
     fetchExamAttempt();
   }, [attemptId]);
+
+  // Countdown interval
+  useEffect(() => {
+    if (!attemptId) return;
+    if (remainingMs === null) return;
+    if (timerExpired) return;
+    const interval = setInterval(() => {
+      const storageKey = `mockTestEndTime_${attemptId}`;
+      const stored = localStorage.getItem(storageKey);
+      const endTime = stored ? parseInt(stored, 10) : Date.now();
+      const diff = Math.max(0, endTime - Date.now());
+      setRemainingMs(diff);
+      if (diff === 0) {
+        clearInterval(interval);
+        setTimerExpired(true);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [attemptId, remainingMs, timerExpired]);
+
+  // Auto submit on expiry
+  useEffect(() => {
+    if (!timerExpired) return;
+    if (submitting) return;
+    handleSubmit();
+  }, [timerExpired]);
+
+  const formatHMS = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  };
 
   // Save answers to localStorage whenever they change
   useEffect(() => {
@@ -208,6 +271,8 @@ export default function MCQTest() {
       
       // Clear localStorage for this attempt
       localStorage.removeItem(getAnswersStorageKey(attemptId));
+      localStorage.removeItem(`mockTestEndTime_${attemptId}`);
+      setRemainingMs(null);
       
       setShowResults(true);
       
@@ -223,12 +288,14 @@ export default function MCQTest() {
     // Clear localStorage for this attempt if going back
     if (attemptId) {
       localStorage.removeItem(getAnswersStorageKey(attemptId));
+      localStorage.removeItem(`mockTestEndTime_${attemptId}`);
     }
     
     dispatch(setCommonState({ 
       examView: 'mock-tests',
       selectedMockTest: null,
-      attemptId: null
+      attemptId: null,
+      examDurationMinutes: null
     }));
   };
   
@@ -319,6 +386,13 @@ export default function MCQTest() {
   }
 
   const resultStats = getResultStats();
+  const negativeMarkPerWrong = 0.1;
+  const adjustedScore = examResult
+    ? Math.max(0, (examResult.score || 0) - resultStats.incorrect * negativeMarkPerWrong)
+    : 0;
+  const adjustedPercentage = examResult && examResult.total_points
+    ? Math.max(0, Math.min(100, (adjustedScore / examResult.total_points) * 100))
+    : 0;
 
   return (
     <section className="naxatw-h-full naxatw-w-full naxatw-p-4">
@@ -334,6 +408,12 @@ export default function MCQTest() {
             Back to Mock Tests
           </button>
         </div>
+
+        {!showResults && remainingMs !== null && remainingMs > 0 && (
+          <div className="naxatw-fixed naxatw-right-14 naxatw-top-[110px] naxatw-z-50 naxatw-bg-primary naxatw-text-white naxatw-rounded-lg naxatw-shadow-lg naxatw-px-4 naxatw-py-2">
+            <div className="naxatw-text-lg naxatw-font-semibold">{formatHMS(remainingMs)}</div>
+          </div>
+        )}
 
         {!showResults ? (
           <>
@@ -429,8 +509,8 @@ export default function MCQTest() {
                   
                   <div className="naxatw-grid naxatw-grid-cols-2 naxatw-md:grid-cols-4 naxatw-gap-4 naxatw-mb-6">
                     <div className="naxatw-bg-blue-50 naxatw-p-4 naxatw-rounded-lg">
-                      <div className="naxatw-text-2xl naxatw-font-bold naxatw-text-blue-600">{examResult.score}</div>
-                      <div className="naxatw-text-sm naxatw-text-gray-600">Score</div>
+                      <div className="naxatw-text-2xl naxatw-font-bold naxatw-text-blue-600">{adjustedScore.toFixed(2)}</div>
+                      <div className="naxatw-text-sm naxatw-text-gray-600">Score (with -0.1/incorrect)</div>
                     </div>
                     <div className="naxatw-bg-green-50 naxatw-p-4 naxatw-rounded-lg">
                       <div className="naxatw-text-2xl naxatw-font-bold naxatw-text-green-600">{resultStats.correct}</div>
@@ -441,8 +521,8 @@ export default function MCQTest() {
                       <div className="naxatw-text-sm naxatw-text-gray-600">Incorrect</div>
                     </div>
                     <div className="naxatw-bg-gray-50 naxatw-p-4 naxatw-rounded-lg">
-                      <div className="naxatw-text-2xl naxatw-font-bold naxatw-text-gray-600">{examResult.score_percentage}%</div>
-                      <div className="naxatw-text-sm naxatw-text-gray-600">Percentage</div>
+                      <div className="naxatw-text-2xl naxatw-font-bold naxatw-text-gray-600">{adjustedPercentage.toFixed(2)}%</div>
+                      <div className="naxatw-text-sm naxatw-text-gray-600">Percentage (after negative marking)</div>
                     </div>
                   </div>
 
@@ -451,10 +531,6 @@ export default function MCQTest() {
                     <div className="naxatw-bg-purple-50 naxatw-p-3 naxatw-rounded-lg">
                       <div className="naxatw-text-lg naxatw-font-semibold naxatw-text-purple-700">{examResult.total_points}</div>
                       <div className="naxatw-text-sm naxatw-text-gray-600">Total Points</div>
-                    </div>
-                    <div className="naxatw-bg-indigo-50 naxatw-p-3 naxatw-rounded-lg">
-                      <div className="naxatw-text-lg naxatw-font-semibold naxatw-text-indigo-700">{examResult.time_taken}</div>
-                      <div className="naxatw-text-sm naxatw-text-gray-600">Time Taken</div>
                     </div>
                   </div>
                 </div>

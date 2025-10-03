@@ -17,6 +17,7 @@ export interface CommonState {
   userEmail: string | null;
   selectedMockTest: number | null;
   attemptId: string | null; // <-- Added for storing attempt id
+  examDurationMinutes: number | null; // duration for current mock test
   isAuthenticated: boolean;
   username: string | null;
 }
@@ -32,6 +33,7 @@ const initialState: CommonState = {
   userEmail: null,
   selectedMockTest: null,
   attemptId: null, // <-- Added for storing attempt id
+  examDurationMinutes: null,
   isAuthenticated: false,
   username: null,
 };

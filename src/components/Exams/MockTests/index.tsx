@@ -49,6 +49,10 @@ export default function MockTests() {
     try {
       const response = await startExamAttempt(mockId);
       const attemptId = response.data.attempt_id || response.data.id || response.data.attempt;
+      // Prefer duration from API; fallback to the selected test in the list
+      const apiDuration = response.data.duration_minutes || response.data.duration;
+      const fallbackDuration = mockTests.find((t) => t.id === mockId)?.duration_minutes;
+      const durationMinutes = apiDuration ?? fallbackDuration ?? 120; // default 120 mins
       
       if (!attemptId) {
         throw new Error('Unable to create exam session. Please try again or contact support.');
@@ -58,6 +62,7 @@ export default function MockTests() {
         examView: 'mcq-test',
         selectedMockTest: mockId,
         attemptId: attemptId.toString(),
+        examDurationMinutes: Number(durationMinutes) || null,
       }));
     } catch (err: any) {
       console.error("Error starting attempt:", err);
