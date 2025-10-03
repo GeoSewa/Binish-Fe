@@ -93,7 +93,7 @@ export const studentsQuote = [
     organization: "IOE, WRC",
     image: SangeetaBc,
     quote:
-      "-	During my NEC exam preparation, Geosewa's mock test proved to be incredibly helpful. The questions were closely aligned with the actual exam, boosting my confidence. Thanks to their well-designed practice sets, I felt confident throughout the exam session. I highly recommend Geosewa's mock test to anyone preparing for the NEC exam.",
+      "During my NEC exam preparation, Geosewa's mock test proved to be incredibly helpful. The questions were closely aligned with the actual exam, boosting my confidence. Thanks to their well-designed practice sets, I felt confident throughout the exam session. I highly recommend Geosewa's mock test to anyone preparing for the NEC exam.",
   },
   {
     id: 1,
@@ -117,6 +117,6 @@ export const studentsQuote = [
     organization: "KU",
     image: SamratAch,
     quote:
-      "Thank you for everything. Mock Test was really a worth it. It gives you the time calculation for the questions, past question (which gets repeat in Real Examination).So, Thank you for everything.",
+      "Thank you for everything. Mock Test was really a worth it. It gives you the time calculation for the questions, past question (which gets repeat in Real Examination). So, Thank you for everything.",
   },
 ];

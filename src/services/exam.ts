@@ -32,3 +32,6 @@ export const getExamResults = () =>
 
 export const getExamResult = (attemptId: string) => 
   api.get(`exams/exam-results/${attemptId}/`);
+
+// Notes APIs
+export const getNotes = () => api.get("exams/notes/");

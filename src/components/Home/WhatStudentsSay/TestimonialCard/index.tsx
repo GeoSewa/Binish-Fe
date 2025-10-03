@@ -2,7 +2,7 @@ const TestimonialCard = (card: Record<string, any>) => {
   const { image, student, quote, organization } = card;
 
   return (
-    <div className="testimonial-card naxatw-cursor-default naxatw-shadow-lg naxatw-rounded-xl naxatw-border naxatw-border-solid naxatw-border-[#E7EAEE] naxatw-bg-white naxatw-p-8 naxatw-text-center">
+    <div className="testimonial-card naxatw-cursor-default naxatw-shadow-lg naxatw-rounded-xl naxatw-border naxatw-border-solid naxatw-border-[#E7EAEE] naxatw-bg-white naxatw-p-8 naxatw-text-center naxatw-h-full naxatw-flex naxatw-flex-col naxatw-min-h-[420px] md:naxatw-min-h-[460px]">
       <div className="image-container naxatw-mx-auto naxatw-mb-10 naxatw-h-16 naxatw-w-16">
         <img
           src={image}
@@ -12,8 +12,8 @@ const TestimonialCard = (card: Record<string, any>) => {
           className="naxatw-rounded-[50%] naxatw-object-cover naxatw-object-center"
         />
       </div>
-      <div className="text-container">
-        <div className="description naxatw-mb-10">
+      <div className="text-container naxatw-flex naxatw-flex-col naxatw-flex-1">
+        <div className="description naxatw-mb-10 naxatw-flex-1">
           <p className="naxatw-text-base naxatw-leading-7 naxatw-tracking-[-0.01125rem] naxatw-text-[#07090D]">
             {quote}
           </p>
