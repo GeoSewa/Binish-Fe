@@ -1,5 +1,5 @@
 import { useTypedDispatch } from "@Store/hooks";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { navigationLinks } from "@Constants/index";
 import { Button } from "@Components/RadixComponents/Button";
 import { toggleModal, setLoginState } from "@Store/actions/common";
@@ -13,6 +13,7 @@ import useAuthSession from "@Hooks/useAuthSession";
 export default function Navbar() {
   const dispatch = useTypedDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const mobileViewNav = useRef<HTMLElement | null>(null);
   const { isAuthenticated } = useAuthSession();
   const [localAuthState, setLocalAuthState] = useState({
@@ -101,7 +102,13 @@ export default function Navbar() {
                 <Button
                   variant="outline"
                   className="naxatw-w-24 naxatw-text-body-lg"
-                  onClick={() => dispatch(toggleModal("login"))}
+                  onClick={() => {
+                    if (location.pathname === "/login") {
+                      dispatch(toggleModal("login"));
+                    } else {
+                      navigate("/login");
+                    }
+                  }}
                 >
                   Login
                 </Button>
