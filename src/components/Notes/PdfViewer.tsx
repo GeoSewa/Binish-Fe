@@ -19,6 +19,17 @@ export default function PdfViewer({ url }: PdfViewerProps) {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [windowWidth, setWindowWidth] = React.useState<number>(window.innerWidth);
+
+  // Handle window resize for responsive PDF rendering
+  React.useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Load pdf.js from CDN once
   React.useEffect(() => {
@@ -58,7 +69,9 @@ export default function PdfViewer({ url }: PdfViewerProps) {
 
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum += 1) {
           const page = await pdf.getPage(pageNum);
-          const viewport = page.getViewport({ scale: 1.3 });
+          // Responsive scale: smaller on mobile, larger on desktop
+          const scale = windowWidth < 768 ? 1.0 : 1.3;
+          const viewport = page.getViewport({ scale });
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d');
           canvas.width = viewport.width;
@@ -71,7 +84,8 @@ export default function PdfViewer({ url }: PdfViewerProps) {
           if (containerRef.current) {
             const wrapper = document.createElement('div');
             wrapper.style.margin = '0 auto 16px auto';
-            wrapper.style.maxWidth = '900px';
+            // Responsive max width: smaller on mobile, larger on desktop
+            wrapper.style.maxWidth = windowWidth < 768 ? '100%' : '900px';
             wrapper.appendChild(canvas);
             containerRef.current.appendChild(wrapper);
           }
@@ -91,7 +105,7 @@ export default function PdfViewer({ url }: PdfViewerProps) {
     return () => {
       isCancelled = true;
     };
-  }, [url]);
+  }, [url, windowWidth]);
 
   // Basic deterrents: block context menu and common shortcuts
   React.useEffect(() => {

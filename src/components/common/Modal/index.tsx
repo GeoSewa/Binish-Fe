@@ -64,12 +64,12 @@ export default function Modal({
               naxatw-max-w-2xl naxatw-flex-col naxatw-items-center naxatw-justify-center md:naxatw-h-auto"
             >
               <div
-                className={`naxatw-relative naxatw-max-h-[calc(100vh-4rem)] naxatw-w-[42rem] naxatw-overflow-hidden
+                className={`naxatw-relative naxatw-max-h-[calc(100vh-4rem)] naxatw-w-full naxatw-max-w-sm sm:naxatw-w-full sm:naxatw-max-w-sm md:naxatw-w-[42rem] md:naxatw-max-w-none naxatw-overflow-hidden
                    naxatw-rounded-[20px] naxatw-bg-white naxatw-shadow ${className}`}
               >
                 <div
                   className={`naxatw-flex naxatw-items-start naxatw-justify-between
-                    naxatw-rounded-t-[20px] naxatw-px-7 ${
+                    naxatw-rounded-t-[20px] naxatw-px-4 sm:naxatw-px-4 md:naxatw-px-7 ${
                       !subtitle && title ? "naxatw-py-5" : "naxatw-py-5"
                     }`}
                 >
@@ -96,7 +96,7 @@ export default function Modal({
                 <div className="naxatw-flex">
                   <div
                     className="scrollbar naxatw-max-h-[calc(100vh-10rem)] naxatw-grow naxatw-overflow-y-auto
-                      naxatw-px-10 naxatw-pb-5"
+                      naxatw-px-4 sm:naxatw-px-4 md:naxatw-px-10 naxatw-pb-5"
                   >
                     {children}
                   </div>

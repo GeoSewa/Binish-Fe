@@ -48,7 +48,7 @@ export default function SignUp() {
     }, 150);
   };
 
-  const { mutate, isPending: isLoading } = useMutation<AxiosResponse<any, any>, any>({
+  const { mutate, isLoading } = useMutation<AxiosResponse<any, any>, any>({
     mutationFn: singUpUser,
     onSuccess: (res: any, variables: any) => {
       localStorage.setItem("signup_email", variables.email || variables.get("email"));
@@ -94,11 +94,12 @@ export default function SignUp() {
     <>
       <Flex
         gap={4}
-        className="naxatw-w-full naxatw-flex-col naxatw-items-center naxatw-justify-center naxatw-pb-4"
+        className="naxatw-w-full naxatw-flex-col naxatw-items-center naxatw-justify-center naxatw-pb-4 sm:naxatw-gap-3 md:naxatw-gap-4"
       >
+        <h3 className="naxatw-text-xl naxatw-font-semibold naxatw-mb-2">Sign Up</h3>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="naxatw-flex naxatw-w-full naxatw-flex-col naxatw-gap-4"
+          className="naxatw-flex naxatw-w-full naxatw-flex-col naxatw-gap-4 sm:naxatw-gap-3 md:naxatw-gap-4"
         >
           {error && <ErrorMessage message={error} />}
           <FormControl>
@@ -153,12 +154,12 @@ export default function SignUp() {
             </Label>
             <Input
               id="phone"
-              type="text"
-              placeholder="something@mail.com"
+              type="tel"
+              placeholder="Phone Number"
               className="naxatw-mt-1 !naxatw-rounded-lg !naxatw-border-grey-400 !naxatw-p-3"
               {...register("phone", { required: "Phone is required" })}
             />
-            <ErrorMessage message={formState?.errors?.email?.message || ""} />
+            <ErrorMessage message={formState?.errors?.phone?.message || ""} />
           </FormControl>
 
           <FormControl>

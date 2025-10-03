@@ -147,7 +147,7 @@ export default function LoginModal() {
 
         {/* google login button */}
         <div
-          className="naxatw-flex naxatw-w-[60%] naxatw-cursor-pointer naxatw-items-center naxatw-justify-center naxatw-gap-2 naxatw-rounded-lg naxatw-border naxatw-border-grey-800 naxatw-px-5 naxatw-py-2 hover:naxatw-shadow-md"
+          className="naxatw-flex naxatw-w-[60%] sm:naxatw-w-full md:naxatw-w-[60%] naxatw-cursor-pointer naxatw-items-center naxatw-justify-center naxatw-gap-2 naxatw-rounded-lg naxatw-border naxatw-border-grey-800 naxatw-px-5 sm:naxatw-px-3 md:naxatw-px-5 naxatw-py-2 hover:naxatw-shadow-md"
           onClick={handleGoogleLogin}
         >
           <Image src={googleIcon} />
@@ -205,14 +205,14 @@ export default function LoginModal() {
             />
           </FormControl>
 
-          <FlexRow className="naxatw-items-center naxatw-justify-between">
-            <FlexRow className="naxatw-items-center naxatw-gap-2 naxatw-pl-3">
+          <FlexRow className="naxatw-items-center naxatw-justify-between sm:naxatw-flex-col md:naxatw-flex-row naxatw-gap-2">
+            <FlexRow className="naxatw-items-center naxatw-gap-2 sm:naxatw-pl-3 md:naxatw-pl-0">
               <Input type="checkbox" id="check" />
               <Label htmlFor="check">Remember Me</Label>
             </FlexRow>
             <Button
               variant="ghost"
-              className="naxatw-text-body-btn !naxatw-text-red"
+              className="naxatw-text-body-btn !naxatw-text-red sm:naxatw-text-sm md:naxatw-text-body-btn"
               onClick={handleForgotPassword}
               type="button"
             >

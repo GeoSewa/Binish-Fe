@@ -60,7 +60,7 @@ export default function Navbar() {
           <FlexRow className="naxatw-text-white naxatw-items-center" gap={2}>
             <Icon name="public" />
             <div
-              className="naxatw-cursor-pointer"
+              className="naxatw-cursor-pointer naxatw-py-2"
               role="presentation"
               onClick={() => navigate("/")}
             >
@@ -125,6 +125,17 @@ export default function Navbar() {
           <ToggledNavbar
             navItems={navigationLinks}
             mobileViewNavRef={mobileViewNav}
+            isAuthenticated={!!currentAuthState.isAuthenticated}
+            username={currentAuthState.username || null}
+            onLogin={() => {
+              if (location.pathname === "/login") {
+                dispatch(toggleModal("login"));
+              } else {
+                navigate("/login");
+              }
+            }}
+            onSignUp={() => dispatch(toggleModal("sign-up"))}
+            onLogout={handleLogout}
           />
         </FlexRow>
       </nav>

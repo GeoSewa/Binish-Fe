@@ -27,7 +27,7 @@ export default function Exams() {
 
   return (
     <main className="notes naxatw-h-screen-nav naxatw-w-full naxatw-bg-white">
-      <div className="naxatw-container naxatw-py-4 naxatw-h-full">
+      <div className="naxatw-container naxatw-py-4 naxatw-h-full naxatw-max-w-7xl">
         <Tab
           orientation="row"
           clickable

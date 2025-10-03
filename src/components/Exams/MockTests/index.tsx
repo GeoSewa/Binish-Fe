@@ -174,7 +174,7 @@ export default function MockTests() {
           </button>
         </div>
 
-        <div className="naxatw-grid naxatw-grid-cols-1 naxatw-md:grid-cols-2 naxatw-lg:grid-cols-3 naxatw-gap-6">
+        <div className="naxatw-flex naxatw-flex-col naxatw-gap-6">
           {mockTests.map((test) => (
             <div
               key={test.id}

@@ -410,8 +410,8 @@ export default function MCQTest() {
         </div>
 
         {!showResults && remainingMs !== null && remainingMs > 0 && (
-          <div className="naxatw-fixed naxatw-right-14 naxatw-top-[110px] naxatw-z-50 naxatw-bg-primary naxatw-text-white naxatw-rounded-lg naxatw-shadow-lg naxatw-px-4 naxatw-py-2">
-            <div className="naxatw-text-lg naxatw-font-semibold">{formatHMS(remainingMs)}</div>
+          <div className="naxatw-z-50 naxatw-bg-primary naxatw-text-white naxatw-rounded-lg naxatw-shadow-lg naxatw-px-4 naxatw-py-2 naxatw-fixed naxatw-right-4 naxatw-top-[84px] md:naxatw-right-14 md:naxatw-top-[110px]">
+            <div className="naxatw-text-base md:naxatw-text-lg naxatw-font-semibold">{formatHMS(remainingMs)}</div>
           </div>
         )}
 
@@ -507,7 +507,7 @@ export default function MCQTest() {
                 <div className="naxatw-text-center naxatw-mb-8">
                   <h3 className="naxatw-text-2xl naxatw-font-bold naxatw-mb-4">Exam Results</h3>
                   
-                  <div className="naxatw-grid naxatw-grid-cols-2 naxatw-md:grid-cols-4 naxatw-gap-4 naxatw-mb-6">
+                  <div className="naxatw-grid naxatw-grid-cols-2 md:naxatw-grid-cols-4 naxatw-gap-4 naxatw-mb-6">
                     <div className="naxatw-bg-blue-50 naxatw-p-4 naxatw-rounded-lg">
                       <div className="naxatw-text-2xl naxatw-font-bold naxatw-text-blue-600">{adjustedScore.toFixed(2)}</div>
                       <div className="naxatw-text-sm naxatw-text-gray-600">Score (with -0.1/incorrect)</div>
@@ -527,7 +527,7 @@ export default function MCQTest() {
                   </div>
 
                   {/* Additional Stats */}
-                  <div className="naxatw-grid naxatw-grid-cols-1 naxatw-md:grid-cols-3 naxatw-gap-4 naxatw-mb-6">
+                  <div className="naxatw-grid naxatw-grid-cols-1 md:naxatw-grid-cols-3 naxatw-gap-4 naxatw-mb-6">
                     <div className="naxatw-bg-purple-50 naxatw-p-3 naxatw-rounded-lg">
                       <div className="naxatw-text-lg naxatw-font-semibold naxatw-text-purple-700">{examResult.total_points}</div>
                       <div className="naxatw-text-sm naxatw-text-gray-600">Total Points</div>
