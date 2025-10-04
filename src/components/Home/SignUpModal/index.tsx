@@ -32,6 +32,7 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const dispatch = useTypedDispatch();
 
@@ -48,14 +49,16 @@ export default function SignUp() {
     }, 150);
   };
 
-  const { mutate, isLoading } = useMutation<AxiosResponse<any, any>, any>({
+  const { mutate } = useMutation<AxiosResponse<any, any>, any>({
     mutationFn: singUpUser,
     onSuccess: (res: any, variables: any) => {
+      setIsLoading(false);
       localStorage.setItem("signup_email", variables.email || variables.get("email"));
       navigate("/verify-email");
       closeModal();
     },
     onError: (err: any) => {
+      setIsLoading(false);
       const errorData = err?.response?.data;
       const errorMsg =
         errorData?.detail ||
@@ -82,6 +85,7 @@ export default function SignUp() {
 
   const onSubmit = (data: any) => {
     setError("");
+    setIsLoading(true);
     const modifiedPayload = {
       ...data,
       password_confirm: data.password_confirm,
