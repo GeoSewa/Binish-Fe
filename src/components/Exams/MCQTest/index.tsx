@@ -3,6 +3,7 @@ import { Button } from "@Components/RadixComponents/Button";
 import { useTypedDispatch, useTypedSelector } from "@Store/hooks";
 import { setCommonState } from "@Store/actions/common";
 import { getExamAttempt, saveAnswer, submitExamAttempt, getExamResult } from "@Services/exam";
+import ExamImage from "@Components/common/ExamImage";
 
 interface Question {
   id: number;
@@ -17,6 +18,7 @@ interface Question {
 interface Choice {
   id: number;
   choice_text: string;
+  image?: string; // Added for frontend image support
   correct?: boolean;
 }
 
@@ -428,41 +430,82 @@ export default function MCQTest() {
               {currentQuestions.map((question, index) => (
                 <div key={question.id} className="naxatw-mb-8 naxatw-border-b naxatw-pb-4 naxatw-last:border-0">
                   <div className="naxatw-mb-3">
-                    <h4 className="naxatw-font-medium naxatw-text-lg">
-                      {startIndex + index + 1}. {question.question_text}
-                    </h4>
+                    <div className="naxatw-flex naxatw-gap-2 naxatw-mb-3">
+                      <h4 className="naxatw-font-medium naxatw-text-lg">
+                        {startIndex + index + 1}.
+                      </h4>
+                      {/* Question Text */}
+                      {question.question_text && question.question_text.trim() && (
+                        <div className="naxatw-text-gray-800 naxatw-text-lg">
+                          {question.question_text}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Question Image */}
                     {question.image && (
-                      <img 
+                      <ExamImage 
                         src={question.image} 
                         alt="Question" 
-                        className="naxatw-mt-2 naxatw-max-w-full naxatw-h-auto naxatw-rounded"
+                        fallbackText="Question image not available"
                       />
+                    )}
+                    
+                    {/* Show message if neither text nor image */}
+                    {(!question.question_text || !question.question_text.trim()) && !question.image && (
+                      <div className="naxatw-text-gray-400 naxatw-italic">
+                        No question content available
+                      </div>
                     )}
                   </div>
                   
                   <div className="naxatw-pl-4">
-                    {Array.isArray(question.choices) && question.choices.length > 0 ? (
-                      question.choices.map((choice) => (
-                        <div key={choice.id} className="naxatw-flex naxatw-items-center naxatw-gap-3 naxatw-my-3">
-                          <input
-                            type="radio"
-                            id={`q${question.id}-${choice.id}`}
-                            name={`question-${question.id}`}
-                            checked={selectedAnswers[question.id] === choice.id}
-                            onChange={() => handleOptionSelect(question.id, choice.id)}
-                            className="naxatw-cursor-pointer naxatw-w-4 naxatw-h-4"
-                          />
-                          <label
-                            htmlFor={`q${question.id}-${choice.id}`}
-                            className="naxatw-cursor-pointer naxatw-flex-1 naxatw-text-gray-700"
-                          >
-                            {choice.choice_text}
-                          </label>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="naxatw-text-gray-400 naxatw-italic">No options available.</div>
-                    )}
+                      {Array.isArray(question.choices) && question.choices.length > 0 ? (
+                        question.choices.map((choice) => (
+                          <div key={choice.id} className="naxatw-flex naxatw-items-start naxatw-gap-3 naxatw-my-3 naxatw-p-3 naxatw-border naxatw-border-gray-200 naxatw-rounded-lg naxatw-hover:bg-gray-50">
+                            <input
+                              type="radio"
+                              id={`q${question.id}-${choice.id}`}
+                              name={`question-${question.id}`}
+                              checked={selectedAnswers[question.id] === choice.id}
+                              onChange={() => handleOptionSelect(question.id, choice.id)}
+                              className="naxatw-cursor-pointer naxatw-w-4 naxatw-h-4 naxatw-mt-1"
+                            />
+                            <label
+                              htmlFor={`q${question.id}-${choice.id}`}
+                              className="naxatw-cursor-pointer naxatw-flex-1 naxatw-text-gray-700"
+                            >
+                              <div className="naxatw-space-y-2">
+                                {/* Choice Text */}
+                                {choice.choice_text && choice.choice_text.trim() && (
+                                  <div className="naxatw-text-gray-800">
+                                    {choice.choice_text}
+                                  </div>
+                                )}
+                                
+                                {/* Choice Image */}
+                                {choice.image && (
+                                  <ExamImage 
+                                    src={choice.image} 
+                                    alt="Choice" 
+                                    fallbackText="Choice image not available"
+                                    className="naxatw-max-w-xs"
+                                  />
+                                )}
+                                
+                                {/* Show message if neither text nor image */}
+                                {(!choice.choice_text || !choice.choice_text.trim()) && !choice.image && (
+                                  <div className="naxatw-text-gray-400 naxatw-italic">
+                                    No choice content available
+                                  </div>
+                                )}
+                              </div>
+                            </label>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="naxatw-text-gray-400 naxatw-italic">No options available.</div>
+                      )}
                   </div>
                 </div>
               ))}
@@ -525,14 +568,6 @@ export default function MCQTest() {
                       <div className="naxatw-text-sm naxatw-text-gray-600">Percentage (after negative marking)</div>
                     </div>
                   </div>
-
-                  {/* Additional Stats */}
-                  <div className="naxatw-grid naxatw-grid-cols-1 md:naxatw-grid-cols-3 naxatw-gap-4 naxatw-mb-6">
-                    <div className="naxatw-bg-purple-50 naxatw-p-3 naxatw-rounded-lg">
-                      <div className="naxatw-text-lg naxatw-font-semibold naxatw-text-purple-700">{examResult.total_points}</div>
-                      <div className="naxatw-text-sm naxatw-text-gray-600">Total Points</div>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Detailed Results */}
@@ -555,11 +590,28 @@ export default function MCQTest() {
                             <div className="naxatw-mb-3">
                               <span className="naxatw-font-medium naxatw-text-gray-700">Your Answer: </span>
                               {result.selected_choices && result.selected_choices.length > 0 ? (
-                                <span className={`naxatw-font-semibold ${
-                                  result.is_correct ? 'naxatw-text-green-600' : 'naxatw-text-red-600'
-                                }`}>
-                                  {result.selected_choices.map(choice => choice.choice_text).join(', ')}
-                                </span>
+                                <div className="naxatw-mt-2 naxatw-space-y-2">
+                                  {result.selected_choices.map((choice, choiceIndex) => (
+                                    <div key={choiceIndex} className={`naxatw-p-2 naxatw-border naxatw-rounded ${
+                                      result.is_correct ? 'naxatw-border-green-300 naxatw-bg-green-50' : 'naxatw-border-red-300 naxatw-bg-red-50'
+                                    }`}>
+                                      {choice.choice_text && choice.choice_text.trim() && (
+                                        <div className="naxatw-text-gray-800">{choice.choice_text}</div>
+                                      )}
+                                      {choice.image && (
+                                        <ExamImage 
+                                          src={choice.image} 
+                                          alt="Your selected choice" 
+                                          fallbackText="Choice image not available"
+                                          className="naxatw-max-w-xs naxatw-mt-2"
+                                        />
+                                      )}
+                                      {(!choice.choice_text || !choice.choice_text.trim()) && !choice.image && (
+                                        <div className="naxatw-text-gray-400 naxatw-italic">No choice content</div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
                               ) : (
                                 <span className="naxatw-text-gray-500 italic">No answer provided</span>
                               )}
@@ -569,9 +621,26 @@ export default function MCQTest() {
                             {!result.is_correct && (
                               <div className="naxatw-mb-3">
                                 <span className="naxatw-font-medium naxatw-text-gray-700">Correct Answer: </span>
-                                <span className="naxatw-font-semibold naxatw-text-green-600">
-                                  {result.correct_choices.map(choice => choice.choice_text).join(', ')}
-                                </span>
+                                <div className="naxatw-mt-2 naxatw-space-y-2">
+                                  {result.correct_choices.map((choice, choiceIndex) => (
+                                    <div key={choiceIndex} className="naxatw-p-2 naxatw-border naxatw-border-green-300 naxatw-bg-green-50 naxatw-rounded">
+                                      {choice.choice_text && choice.choice_text.trim() && (
+                                        <div className="naxatw-text-gray-800">{choice.choice_text}</div>
+                                      )}
+                                      {choice.image && (
+                                        <ExamImage 
+                                          src={choice.image} 
+                                          alt="Correct choice" 
+                                          fallbackText="Choice image not available"
+                                          className="naxatw-max-w-xs naxatw-mt-2"
+                                        />
+                                      )}
+                                      {(!choice.choice_text || !choice.choice_text.trim()) && !choice.image && (
+                                        <div className="naxatw-text-gray-400 naxatw-italic">No choice content</div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                             )}
 

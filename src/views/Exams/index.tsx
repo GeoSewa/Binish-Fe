@@ -4,8 +4,6 @@ import { examTabOptions } from "@Constants/exam";
 import { setCommonState } from "@Store/actions/common";
 import ExamSection from "@Components/Exams/ExamSection/ExamSection";
 import FormSection from "@Components/Exams/FormSection";
-import { useQuery } from "@tanstack/react-query";
-import { getExamQuestions } from "@Services/exam";
 
 const getActiveTabContent = (activeExamTab: string) => {
   switch (activeExamTab) {
@@ -22,8 +20,6 @@ export default function Exams() {
   const dispatch = useTypedDispatch();
 
   const activeExamTab = useTypedSelector((state) => state.common.activeExamTab);
-
-  useQuery({ queryKey: ["key"], queryFn: () => getExamQuestions({ set: 1 }) });
 
   return (
     <main className="notes naxatw-h-screen-nav naxatw-w-full naxatw-bg-white">
