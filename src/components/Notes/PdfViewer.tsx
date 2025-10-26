@@ -79,14 +79,44 @@ export default function PdfViewer({ url }: PdfViewerProps) {
           canvas.style.width = '100%';
           canvas.style.height = 'auto';
           canvas.style.display = 'block';
-          canvas.style.background = '#fff';
+          canvas.style.background = 'transparent';
 
           if (containerRef.current) {
             const wrapper = document.createElement('div');
             wrapper.style.margin = '0 auto 16px auto';
+            wrapper.style.position = 'relative';
             // Responsive max width: smaller on mobile, larger on desktop
             wrapper.style.maxWidth = windowWidth < 768 ? '100%' : '900px';
             wrapper.appendChild(canvas);
+            
+            // Add watermark overlay to each page
+            const watermarkOverlay = document.createElement('div');
+            watermarkOverlay.style.position = 'absolute';
+            watermarkOverlay.style.top = '50%';
+            watermarkOverlay.style.left = '50%';
+            watermarkOverlay.style.transform = 'translate(-50%, -50%)';
+            watermarkOverlay.style.width = '200px';
+            watermarkOverlay.style.height = '200px';
+            watermarkOverlay.style.opacity = '0.3';
+            watermarkOverlay.style.pointerEvents = 'none';
+            watermarkOverlay.style.zIndex = '10';
+            watermarkOverlay.style.display = 'flex';
+            watermarkOverlay.style.alignItems = 'center';
+            watermarkOverlay.style.justifyContent = 'center';
+            
+            // Create img element for watermark
+            const watermarkImg = document.createElement('img');
+            watermarkImg.src = '/src/assets/images/Geosewa_logo.png';
+            watermarkImg.style.width = '100%';
+            watermarkImg.style.height = '100%';
+            watermarkImg.style.objectFit = 'contain';
+            watermarkImg.onerror = () => {
+              // Fallback: try different path
+              watermarkImg.src = '../images/Geosewa_logo.png';
+            };
+            watermarkOverlay.appendChild(watermarkImg);
+            
+            wrapper.appendChild(watermarkOverlay);
             containerRef.current.appendChild(wrapper);
           }
 
@@ -141,7 +171,7 @@ export default function PdfViewer({ url }: PdfViewerProps) {
   }, []);
 
   return (
-    <div className="naxatw-w-full naxatw-h-full naxatw-overflow-auto naxatw-bg-gray-100">
+    <div className="naxatw-w-full naxatw-h-full naxatw-overflow-auto naxatw-bg-gray-100 pdf-watermark">
       {loading && (
         <div className="naxatw-p-4 naxatw-text-center">Loading PDF…</div>
       )}

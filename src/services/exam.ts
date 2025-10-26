@@ -33,5 +33,18 @@ export const getExamResults = () =>
 export const getExamResult = (attemptId: string) => 
   api.get(`exams/exam-results/${attemptId}/`);
 
+// Get all users' exam results (for superusers)
+export const getExamResultsForAllUsers = (dateFilter?: string) => {
+  const params: Record<string, any> = {};
+  if (dateFilter) {
+    params.date = dateFilter;
+  }
+  return api.get("exams/exam-result/allusers/", { params });
+};
+
+// Get current user's exam results
+export const getExamResultsForUser = () => 
+  api.get("exams/exam-results/");
+
 // Notes APIs
 export const getNotes = () => api.get("exams/notes/");

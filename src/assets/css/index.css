@@ -45,3 +45,31 @@ body {
   pointer-events: initial;
   clip-path: inset(0 0% 0 0) !important;
 }
+
+/* Watermark styles for PDF viewer */
+.pdf-watermark {
+  position: relative;
+  background: #f8f9fa;
+}
+
+
+.pdf-watermark canvas {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure watermark appears in front of PDF content */
+.pdf-watermark > div {
+  position: relative;
+  z-index: 1;
+}
+
+/* Watermark for each PDF page */
+.page-watermark {
+  background-image: url('../images/Geosewa_logo.png');
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
