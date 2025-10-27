@@ -6,7 +6,7 @@ export const baseURL = "https://sujanadh.pythonanywhere.com/api";
 
 export const api = axios.create({
   baseURL: baseURL,
-  timeout: 5 * 60 * 1000,
+  timeout: 30 * 1000, // Reduced from 5 minutes to 30 seconds for faster failure detection
   headers: {
     accept: "application/json",
     "Content-Type": "application/json",

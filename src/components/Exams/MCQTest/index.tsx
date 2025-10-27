@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@Components/RadixComponents/Button";
 import { useTypedDispatch, useTypedSelector } from "@Store/hooks";
 import { setCommonState } from "@Store/actions/common";
-import { getExamAttempt, saveAnswer, submitExamAttempt, getExamResult } from "@Services/exam";
+import { getExamAttempt, saveAnswer, saveAnswersBatch, submitExamAttempt, getExamResult } from "@Services/exam";
 import ExamImage from "@Components/common/ExamImage";
 
 interface Question {
@@ -52,6 +52,7 @@ export default function MCQTest() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [saveProgress, setSaveProgress] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<{ [questionId: number]: number }>({});
   const [showResults, setShowResults] = useState(false);
@@ -229,6 +230,7 @@ export default function MCQTest() {
 
     setSubmitting(true);
     setError(null);
+    setSaveProgress('Preparing answers...');
 
     try {
       // Get all answers from localStorage
@@ -245,20 +247,26 @@ export default function MCQTest() {
         answers = selectedAnswers;
       }
 
-      // Save each answer individually via API
-      for (const [questionId, choiceId] of Object.entries(answers)) {
-        try {
-          await saveAnswer(attemptId, {
-            question_id: parseInt(questionId),
-            selected_choices: [choiceId]
-          });
-        } catch (err) {
-          console.warn(`Unable to save answer for question ${questionId}. Your answer will be saved locally.`, err);
-        }
-      }
-      console.log('All answers saved successfully');
+      // Convert answers to batch format
+      const answersToSave = Object.entries(answers).map(([questionId, choiceId]) => ({
+        question_id: parseInt(questionId),
+        selected_choices: [choiceId]
+      }));
 
-      // Submit the exam attempt
+      // Save all answers in parallel using batch function with progress updates
+      setSaveProgress(`Saving ${answersToSave.length} answers...`);
+      console.log(`Saving ${answersToSave.length} answers in parallel...`);
+      const saveResults = await saveAnswersBatch(attemptId, answersToSave);
+      
+      // Count successful saves
+      const successfulSaves = saveResults.filter(result => 
+        result.status === 'fulfilled' && !result.value?.error
+      ).length;
+      
+      console.log(`Successfully saved ${successfulSaves}/${answersToSave.length} answers`);
+      setSaveProgress('Submitting exam...');
+
+      // Submit the exam attempt immediately after batch save
       await submitExamAttempt(attemptId);
       console.log('Exam submitted successfully');
 
@@ -528,7 +536,7 @@ export default function MCQTest() {
                     disabled={submitting}
                     className="naxatw-bg-primary naxatw-text-white naxatw-py-3 naxatw-px-8 naxatw-rounded-md hover:naxatw-bg-primary/90 disabled:naxatw-opacity-50"
                   >
-                    {submitting ? 'Submitting...' : 'Submit Exam'}
+                    {submitting ? (saveProgress || 'Submitting...') : 'Submit Exam'}
                   </Button>
                 </div>
               ) : (

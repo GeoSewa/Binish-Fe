@@ -23,6 +23,35 @@ export const saveAnswer = (attemptId: string, data: {
 }) => 
   api.post(`exams/attempt/${attemptId}/save-answer/`, data);
 
+// Batch save multiple answers in parallel with chunking for large datasets
+export const saveAnswersBatch = async (attemptId: string, answers: Array<{
+  question_id: number;
+  selected_choices: number[];
+}>, chunkSize: number = 20) => {
+  // Split answers into chunks to prevent overwhelming the server
+  const chunks: Array<Array<{question_id: number; selected_choices: number[]}>> = [];
+  for (let i = 0; i < answers.length; i += chunkSize) {
+    chunks.push(answers.slice(i, i + chunkSize));
+  }
+
+  const allResults: PromiseSettledResult<any>[] = [];
+  
+  // Process chunks sequentially but answers within each chunk in parallel
+  for (const chunk of chunks) {
+    const chunkPromises = chunk.map(answer => 
+      saveAnswer(attemptId, answer).catch(err => {
+        console.warn(`Failed to save answer for question ${answer.question_id}:`, err);
+        return { error: err, question_id: answer.question_id };
+      })
+    );
+    
+    const chunkResults = await Promise.allSettled(chunkPromises);
+    allResults.push(...chunkResults);
+  }
+  
+  return allResults;
+};
+
 export const submitExamAttempt = (attemptId: string) => 
   api.post(`exams/attempt/${attemptId}/submit/`);
 
