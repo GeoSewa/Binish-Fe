@@ -1,4 +1,5 @@
 import React from 'react';
+import geosewaLogo from '@Assets/images/Geosewa_logo.png';
 
 interface PdfViewerProps {
   url: string; // blob URL
@@ -106,14 +107,12 @@ export default function PdfViewer({ url }: PdfViewerProps) {
             
             // Create img element for watermark
             const watermarkImg = document.createElement('img');
-            watermarkImg.src = '/src/assets/images/Geosewa_logo.png';
+            // Use bundled asset URL so it works in production builds
+            watermarkImg.src = geosewaLogo;
             watermarkImg.style.width = '100%';
             watermarkImg.style.height = '100%';
             watermarkImg.style.objectFit = 'contain';
-            watermarkImg.onerror = () => {
-              // Fallback: try different path
-              watermarkImg.src = '../images/Geosewa_logo.png';
-            };
+            // No alternative path fallback needed when using imported asset
             watermarkOverlay.appendChild(watermarkImg);
             
             wrapper.appendChild(watermarkOverlay);
