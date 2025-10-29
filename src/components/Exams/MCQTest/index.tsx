@@ -72,15 +72,18 @@ export default function MCQTest() {
 
   // Calculate result statistics
   const getResultStats = () => {
-    if (!examResult) return { correct: 0, incorrect: 0, unanswered: 0 };
+    if (!examResult) return { correct: 0, incorrectAnswered: 0, unanswered: 0 };
     
     const correct = examResult.detailed_results.filter(result => result.is_correct).length;
-    const incorrect = examResult.detailed_results.filter(result => !result.is_correct).length;
     const unanswered = examResult.detailed_results.filter(result => 
       !result.selected_choices || result.selected_choices.length === 0
     ).length;
+    // Count only wrong answers that were actually attempted (exclude unanswered)
+    const incorrectAnswered = examResult.detailed_results.filter(result =>
+      !result.is_correct && result.selected_choices && result.selected_choices.length > 0
+    ).length;
     
-    return { correct, incorrect, unanswered };
+    return { correct, incorrectAnswered, unanswered };
   };
 
   // Fetch exam attempt data (questions and saved answers)
@@ -264,6 +267,17 @@ export default function MCQTest() {
       ).length;
       
       console.log(`Successfully saved ${successfulSaves}/${answersToSave.length} answers`);
+      
+      // If no answers were saved successfully, show an error
+      if (successfulSaves === 0 && answersToSave.length > 0) {
+        throw new Error('Failed to save answers. Please check your connection and try again.');
+      }
+      
+      // If some answers failed but some succeeded, log a warning but continue
+      if (successfulSaves < answersToSave.length) {
+        console.warn(`Warning: Only ${successfulSaves} out of ${answersToSave.length} answers were saved successfully`);
+      }
+      
       setSaveProgress('Submitting exam...');
 
       // Submit the exam attempt immediately after batch save
@@ -288,7 +302,25 @@ export default function MCQTest() {
       
     } catch (err: any) {
       console.error('Error submitting exam:', err);
-      setError(err.response?.data?.message || 'Error submitting exam. Please try again.');
+      
+      // Provide specific error messages based on the error type
+      let errorMessage = 'Error submitting exam. Please try again.';
+      
+      if (err.message && err.message.includes('save answers')) {
+        errorMessage = err.message;
+      } else if (err.response?.status === 401) {
+        errorMessage = 'Your session has expired. Please log in again and try submitting your exam.';
+      } else if (err.response?.status === 403) {
+        errorMessage = 'You do not have permission to submit this exam. Please contact support.';
+      } else if (err.response?.status === 404) {
+        errorMessage = 'Exam attempt not found. Your exam may have expired or been completed already.';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -398,7 +430,7 @@ export default function MCQTest() {
   const resultStats = getResultStats();
   const negativeMarkPerWrong = 0.1;
   const adjustedScore = examResult
-    ? Math.max(0, (examResult.score || 0) - resultStats.incorrect * negativeMarkPerWrong)
+    ? Math.max(0, (examResult.score || 0) - resultStats.incorrectAnswered * negativeMarkPerWrong)
     : 0;
   const adjustedPercentage = examResult && examResult.total_points
     ? Math.max(0, Math.min(100, (adjustedScore / examResult.total_points) * 100))
@@ -568,7 +600,7 @@ export default function MCQTest() {
                       <div className="naxatw-text-sm naxatw-text-gray-600">Correct</div>
                     </div>
                     <div className="naxatw-bg-red-50 naxatw-p-4 naxatw-rounded-lg">
-                      <div className="naxatw-text-2xl naxatw-font-bold naxatw-text-red-600">{resultStats.incorrect}</div>
+                      <div className="naxatw-text-2xl naxatw-font-bold naxatw-text-red-600">{resultStats.incorrectAnswered}</div>
                       <div className="naxatw-text-sm naxatw-text-gray-600">Incorrect</div>
                     </div>
                     <div className="naxatw-bg-gray-50 naxatw-p-4 naxatw-rounded-lg">
