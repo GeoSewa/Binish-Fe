@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@Components/RadixComponents/Button";
 import { useTypedDispatch, useTypedSelector } from "@Store/hooks";
 import { setCommonState } from "@Store/actions/common";
-import { getExamAttempt, saveAnswer, saveAnswersBatch, submitExamAttempt, getExamResult } from "@Services/exam";
+import { getExamAttempt, saveAnswer, saveAnswersBatch, saveAnswersSequentially, submitExamAttempt, getExamResult } from "@Services/exam";
 import ExamImage from "@Components/common/ExamImage";
 
 interface Question {
@@ -250,27 +250,47 @@ export default function MCQTest() {
         answers = selectedAnswers;
       }
 
-      // Convert answers to batch format
+      // Convert answers to batch format - ensure all values are integers
       const answersToSave = Object.entries(answers).map(([questionId, choiceId]) => ({
         question_id: parseInt(questionId),
-        selected_choices: [choiceId]
+        selected_choices: [typeof choiceId === 'number' ? choiceId : parseInt(String(choiceId))]
       }));
 
-      // Save all answers in parallel using batch function with progress updates
+      // Save all answers using batch function with progress updates
       setSaveProgress(`Saving ${answersToSave.length} answers...`);
-      console.log(`Saving ${answersToSave.length} answers in parallel...`);
-      const saveResults = await saveAnswersBatch(attemptId, answersToSave);
+      console.log(`Saving ${answersToSave.length} answers...`);
+      console.log('Answers to save:', answersToSave);
+      
+      let saveResults = await saveAnswersBatch(attemptId, answersToSave);
       
       // Count successful saves
-      const successfulSaves = saveResults.filter(result => 
-        result.status === 'fulfilled' && !result.value?.error
+      let successfulSaves = saveResults.filter(result => 
+        result.status === 'fulfilled'
       ).length;
       
-      console.log(`Successfully saved ${successfulSaves}/${answersToSave.length} answers`);
+      console.log(`Batch save result: ${successfulSaves}/${answersToSave.length} answers saved`);
       
-      // If no answers were saved successfully, show an error
+      // If batch save completely failed, try saving sequentially as fallback
       if (successfulSaves === 0 && answersToSave.length > 0) {
-        throw new Error('Failed to save answers. Please check your connection and try again.');
+        console.warn('Batch save failed, trying sequential save...');
+        setSaveProgress('Retrying with sequential save...');
+        saveResults = await saveAnswersSequentially(attemptId, answersToSave);
+        
+        successfulSaves = saveResults.filter(result => 
+          result.status === 'fulfilled'
+        ).length;
+        
+        console.log(`Sequential save result: ${successfulSaves}/${answersToSave.length} answers saved`);
+      }
+      
+      // If still no answers were saved successfully, show an error
+      if (successfulSaves === 0 && answersToSave.length > 0) {
+        // Get error details from the first failed attempt
+        const firstError = saveResults.find(r => r.status === 'rejected');
+        const errorMessage = firstError && 'reason' in firstError 
+          ? (firstError.reason?.response?.data?.detail || firstError.reason?.message || 'Unknown error')
+          : 'Failed to save answers';
+        throw new Error(`Failed to save answers: ${errorMessage}. Please check your connection and try again.`);
       }
       
       // If some answers failed but some succeeded, log a warning but continue
