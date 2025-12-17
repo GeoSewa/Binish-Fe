@@ -181,7 +181,7 @@ export default function LoginModal() {
             <Input
               id="username"
               type="text"
-              placeholder="Username"
+              placeholder="Email"
               className="naxatw-mt-1 !naxatw-rounded-lg !naxatw-border-grey-400 !naxatw-p-3"
               {...register("email", { required: true })}
             />
