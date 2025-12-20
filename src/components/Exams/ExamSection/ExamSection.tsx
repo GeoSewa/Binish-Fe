@@ -41,7 +41,7 @@ export default function ExamSection() {
             name="edit_note"
             className="naxatw-text-[10em] naxatw-text-primary"
           />
-          <h5>Geomatics License Mock Test</h5>
+          <h5>Live Mock Test</h5>
         </div>
         
         {/* History Button - Right side */}
